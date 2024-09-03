@@ -13,14 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const expenseFilters = {
         date: document.getElementById('filterExpenseDate')
     };
-
     const serviceFilters = {
         vehicle: document.getElementById('filterVehicle'),
         licensePlate: document.getElementById('filterLicensePlate'),
         client: document.getElementById('filterClient')
     };
-
-    
     const dashboardSection = document.getElementById('dashboard-section');
     const dailyChartCanvas = document.getElementById('dailyChart');
     const weeklyChartCanvas = document.getElementById('weeklyChart');
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let services = [];
     let clients = [];
 
-    // Inicializar os gráficos
     const initChart = (canvas, label) => new Chart(canvas, {
         type: 'bar',
         data: {
@@ -62,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Função para filtrar despesas
     const filterExpenses = () => {
         const filterDate = expenseFilters.date.value;
         let filteredExpenses = expenses;
@@ -74,10 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateExpenseTable(filteredExpenses);
     };
 
-     // Adiciona um listener de evento para o filtro de data
     expenseFilters.date.addEventListener('change', filterExpenses);
 
-    // Atualiza a função updateExpenseTable para aceitar uma lista de despesas filtradas
     const updateExpenseTable = (filteredExpenses = expenses) => {
         expenseTableBody.innerHTML = '';
         filteredExpenses.forEach(expense => {
@@ -97,7 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Função para filtrar serviços
+    const getClientNameById = (id) => {
+        const client = clients.find(c => c.id === id);
+        return client ? client.name : '';
+    };
+
     const filterServices = () => {
         const filterVehicle = serviceFilters.vehicle.value.toLowerCase();
         const filterLicensePlate = serviceFilters.licensePlate.value.toLowerCase();
@@ -114,27 +111,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (filterClient) {
-            filteredServices = filteredServices.filter(service => service.client === filterClient);
+            filteredServices = filteredServices.filter(service => {
+                const clientName = getClientNameById(service.client);
+                return clientName.toLowerCase().includes(filterClient.toLowerCase());
+            });
         }
 
         updateServiceTable(filteredServices);
     };
 
-     // Adiciona listeners de evento para os filtros de serviços
-     serviceFilters.vehicle.addEventListener('input', filterServices);
-     serviceFilters.licensePlate.addEventListener('input', filterServices);
-     serviceFilters.client.addEventListener('change', filterServices);
+    serviceFilters.vehicle.addEventListener('input', filterServices);
+    serviceFilters.licensePlate.addEventListener('input', filterServices);
+    serviceFilters.client.addEventListener('change', filterServices);
 
-    // Atualiza a função updateServiceTable para aceitar uma lista de serviços filtrados
     const updateServiceTable = (filteredServices = services) => {
         serviceTableBody.innerHTML = '';
         filteredServices.forEach(service => {
+            const clientName = getClientNameById(service.client);
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${service.date}</td>
                 <td>${service.vehicle}</td>
                 <td>${service.licensePlate}</td>
-                <td>${service.client}</td>
+                <td>${clientName}</td>
                 <td>${service.payment}</td>
                 <td>${service.amount}</td>
                 <td>${service.description}</td>
@@ -175,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addClient = (client) => {
         clients.push(client);
         updateClientTable();
-        // Atualizar o seletor de cliente no formulário de serviço
         clientSelect.innerHTML = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     };
 
@@ -203,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('serviceDate').value = service.date;
             document.getElementById('vehicle').value = service.vehicle;
             document.getElementById('licensePlate').value = service.licensePlate;
-            document.getElementById('client').value = service.client;
+            document.getElementById('client').value = service.client;  // Aqui será o ID
             document.getElementById('servicePayment').value = service.payment;
             document.getElementById('serviceAmount').value = service.amount;
             document.getElementById('serviceDescription').value = service.description;
@@ -226,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteClient = (id) => {
         clients = clients.filter(c => c.id !== id);
         updateClientTable();
-        // Atualizar o seletor de cliente no formulário de serviço
         clientSelect.innerHTML = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     };
 
@@ -258,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: event.target.serviceDate.value,
             vehicle: event.target.vehicle.value,
             licensePlate: event.target.licensePlate.value,
-            client: event.target.client.value,
+            client: parseInt(event.target.client.value), // Convertendo o valor para número
             payment: event.target.servicePayment.value,
             amount: event.target.serviceAmount.value,
             description: event.target.serviceDescription.value
@@ -291,6 +288,4 @@ document.addEventListener('DOMContentLoaded', () => {
     servicesTab.addEventListener('click', () => switchTab('services-section'));
     clientsTab.addEventListener('click', () => switchTab('clients-section'));
     dashboardTab.addEventListener('click', () => switchTab('dashboard-section'));
-
-    // Preencher filtros e tabelas com dados exemplo, se necessário
 });
