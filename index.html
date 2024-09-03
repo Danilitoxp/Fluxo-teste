@@ -20,23 +20,22 @@
     </div>
 
     <div class="main-content">
-        <!-- Aba de Despesas -->
         <div id="expenses-section" class="tab-content active">
             <h1>Cadastro de Despesas</h1>
             <form id="expenseForm">
                 <input type="hidden" id="expenseId">
                 <label for="expenseDate">Dia:</label>
                 <input type="date" id="expenseDate" name="expenseDate" required>
-                
+
                 <label for="expenseType">Despesa:</label>
                 <input type="text" id="expenseType" name="expenseType" required>
-                
+
                 <label for="expenseAmount">Valor:</label>
                 <input type="number" id="expenseAmount" name="expenseAmount" required>
-                
+
                 <label for="expenseDescription">Descrição:</label>
-                <textarea id="expenseDescription" name="expenseDescription" required></textarea>
-                
+                <textarea id="expenseDescription" name="expenseDescription"></textarea>
+
                 <label for="expensePayment">Forma de Pagamento:</label>
                 <select id="expensePayment" name="expensePayment" required>
                     <option value="dinheiro">Dinheiro</option>
@@ -45,7 +44,7 @@
                     <option value="pix">Pix</option>
                     <option value="boleto">Boleto</option>
                 </select>
-                
+
                 <button type="submit">Cadastrar Despesa</button>
             </form>
 
@@ -72,31 +71,26 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- As despesas serão inseridas aqui dinamicamente -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <!-- Aba de Serviços -->
         <div id="services-section" class="tab-content">
             <h1>Cadastro de Serviços</h1>
             <form id="serviceForm">
                 <input type="hidden" id="serviceId">
                 <label for="serviceDate">Data:</label>
                 <input type="date" id="serviceDate" name="serviceDate" required>
-                
+
                 <label for="vehicle">Veículo:</label>
                 <input type="text" id="vehicle" name="vehicle" required>
-                
+
                 <label for="licensePlate">Placa:</label>
                 <input type="text" id="licensePlate" name="licensePlate" required>
-                
+
                 <label for="client">Cliente:</label>
-                <select id="client" name="client" required>
-                    <!-- Clientes serão carregados dinamicamente -->
-                </select>
-                
+                <select id="client" name="client" required></select>
+
                 <label for="servicePayment">Forma de Pagamento:</label>
                 <select id="servicePayment" name="servicePayment" required>
                     <option value="dinheiro">Dinheiro</option>
@@ -105,13 +99,13 @@
                     <option value="pix">Pix</option>
                     <option value="boleto">Boleto</option>
                 </select>
-                
+
                 <label for="serviceAmount">Valor:</label>
                 <input type="number" id="serviceAmount" name="serviceAmount" required>
-                
+
                 <label for="serviceDescription">Descrição:</label>
-                <textarea id="serviceDescription" name="serviceDescription" required></textarea>
-                
+                <textarea id="serviceDescription" name="serviceDescription"></textarea>
+
                 <button type="submit">Adicionar Serviço</button>
             </form>
 
@@ -140,20 +134,17 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Os serviços serão inseridos aqui dinamicamente -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <!-- Aba de Clientes -->
         <div id="clients-section" class="tab-content">
             <h1>Cadastro de Clientes</h1>
             <form id="clientForm">
                 <input type="hidden" id="clientId">
                 <label for="clientName">Nome:</label>
                 <input type="text" id="clientName" name="clientName" required>
-                
+
                 <button type="submit">Adicionar Cliente</button>
             </form>
 
@@ -165,13 +156,10 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Os clientes serão inseridos aqui dinamicamente -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <!-- Aba de Dashboard -->
         <div id="dashboard-section" class="tab-content">
             <h1>Dashboard</h1>
             <div class="chart-container">

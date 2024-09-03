@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         payment: document.getElementById('filterExpensePayment')
     };
     const serviceFilters = {
-        date: document.getElementById('filterServiceDate'),
         vehicle: document.getElementById('filterVehicle'),
         licensePlate: document.getElementById('filterLicensePlate'),
         client: document.getElementById('filterClient')
@@ -26,21 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const weeklyChartCanvas = document.getElementById('weeklyChart');
     const monthlyChartCanvas = document.getElementById('monthlyChart');
 
+    let expenses = [];
+    let services = [];
+    let clients = [];
+
     // Inicializar os gráficos
-    const dailyChart = new Chart(dailyChartCanvas, {
+    const initChart = (canvas, label) => new Chart(canvas, {
         type: 'bar',
         data: {
-            labels: [], // Rótulos do gráfico
+            labels: [],
             datasets: [{
-                label: 'Despesas do Dia',
-                data: [], // Dados das despesas do dia
+                label,
+                data: [],
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
         },
         options: {
-            responsive: true,
             scales: {
                 y: {
                     beginAtZero: true
@@ -49,141 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const weeklyChart = new Chart(weeklyChartCanvas, {
-        type: 'bar',
-        data: {
-            labels: [], // Rótulos do gráfico
-            datasets: [{
-                label: 'Despesas da Semana',
-                data: [], // Dados das despesas da semana
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+    const dailyChart = initChart(dailyChartCanvas, 'Despesas Diárias');
+    const weeklyChart = initChart(weeklyChartCanvas, 'Despesas Semanais');
+    const monthlyChart = initChart(monthlyChartCanvas, 'Despesas Mensais');
 
-    const monthlyChart = new Chart(monthlyChartCanvas, {
-        type: 'bar',
-        data: {
-            labels: [], // Rótulos do gráfico
-            datasets: [{
-                label: 'Despesas do Mês',
-                data: [], // Dados das despesas do mês
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    function updateChart() {
-        const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    
-        // Função auxiliar para filtrar despesas por data
-        function filterExpensesByDate(expenses, date) {
-            return expenses.filter(expense => expense.date.startsWith(date));
-        }
-    
-        // Atualize os dados dos gráficos
-        const today = new Date().toISOString().split('T')[0]; // Data no formato 'YYYY-MM-DD'
-        const dailyExpenses = filterExpensesByDate(expenses, today);
-    
-        // Filtrar despesas da semana
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Começo da semana (domingo)
-        const endOfWeek = new Date();
-        endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay())); // Fim da semana (sábado)
-        const weeklyExpenses = expenses.filter(expense => {
-            const expenseDate = new Date(expense.date);
-            return expenseDate >= startOfWeek && expenseDate <= endOfWeek;
+    const switchTab = (activeTabId) => {
+        document.querySelectorAll('.tab-content').forEach(section => {
+            section.classList.toggle('active', section.id === activeTabId);
         });
-    
-        // Filtrar despesas do mês
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1); // Começo do mês
-        const endOfMonth = new Date();
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-        endOfMonth.setDate(0); // Fim do mês
-        const monthlyExpenses = expenses.filter(expense => {
-            const expenseDate = new Date(expense.date);
-            return expenseDate >= startOfMonth && expenseDate <= endOfMonth;
-        });
-    
-        // Atualizando os gráficos com os dados filtrados
-        dailyChart.data.labels = dailyExpenses.map(expense => expense.description || expense.date);
-        dailyChart.data.datasets[0].data = dailyExpenses.map(expense => parseFloat(expense.amount));
-        dailyChart.update();
-    
-        weeklyChart.data.labels = weeklyExpenses.map(expense => expense.description || expense.date);
-        weeklyChart.data.datasets[0].data = weeklyExpenses.map(expense => parseFloat(expense.amount));
-        weeklyChart.update();
-    
-        monthlyChart.data.labels = monthlyExpenses.map(expense => expense.description || expense.date);
-        monthlyChart.data.datasets[0].data = monthlyExpenses.map(expense => parseFloat(expense.amount));
-        monthlyChart.update();
-    }
-    
-    function updateDailyChart() {
-        const today = new Date().toISOString().split('T')[0];
-        const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        const dailyExpenses = expenses.filter(expense => expense.date.startsWith(today));
-        
-        dailyChart.data.labels = dailyExpenses.map(expense => expense.description || expense.date);
-        dailyChart.data.datasets[0].data = dailyExpenses.map(expense => parseFloat(expense.amount));
-        dailyChart.update();
-    }
-    
-    function editExpense(index, newDetails) {
-        const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        if (expenses[index]) {
-            expenses[index] = { ...expenses[index], ...newDetails };
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            loadExpenses();
-            updateChart(); // Atualize o dashboard após a edição
-        } else {
-            console.error('Despesa não encontrada');
-        }
-    }
-    
-    function loadExpenses() {
-        const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        expenseTableBody.innerHTML = expenses.map((expense, index) => `
-            <tr>
+    };
+
+    const updateExpenseTable = () => {
+        expenseTableBody.innerHTML = '';
+        expenses.forEach(expense => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
                 <td>${expense.date}</td>
                 <td>${expense.type}</td>
                 <td>${expense.amount}</td>
                 <td>${expense.description}</td>
                 <td>${expense.payment}</td>
                 <td>
-                    <button class="edit-expense" data-index="${index}">Editar</button>
-                    <button class="delete-expense" data-index="${index}">Excluir</button>
+                    <button onclick="editExpense(${expense.id})">Editar</button>
+                    <button onclick="deleteExpense(${expense.id})">Excluir</button>
                 </td>
-            </tr>
-        `).join('');
-        updateDailyChart(); // Atualiza o gráfico diário quando as despesas são carregadas
-    }
+            `;
+            expenseTableBody.appendChild(row);
+        });
+    };
 
-    function loadServices() {
-        const services = JSON.parse(localStorage.getItem('services')) || [];
-        serviceTableBody.innerHTML = services.map((service, index) => `
-            <tr>
+    const updateServiceTable = () => {
+        serviceTableBody.innerHTML = '';
+        services.forEach(service => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
                 <td>${service.date}</td>
                 <td>${service.vehicle}</td>
                 <td>${service.licensePlate}</td>
@@ -192,57 +93,122 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${service.amount}</td>
                 <td>${service.description}</td>
                 <td>
-                    <button class="edit-service" data-index="${index}">Editar</button>
-                    <button class="delete-service" data-index="${index}">Excluir</button>
+                    <button onclick="editService(${service.id})">Editar</button>
+                    <button onclick="deleteService(${service.id})">Excluir</button>
                 </td>
-            </tr>
-        `).join('');
-    }
+            `;
+            serviceTableBody.appendChild(row);
+        });
+    };
 
-    function loadClients() {
-        const clients = JSON.parse(localStorage.getItem('clients')) || [];
-        clientTableBody.innerHTML = clients.map((client, index) => `
-            <tr>
+    const updateClientTable = () => {
+        clientTableBody.innerHTML = '';
+        clients.forEach(client => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
                 <td>${client.name}</td>
                 <td>
-                    <button class="edit-client" data-index="${index}">Editar</button>
-                    <button class="delete-client" data-index="${index}">Excluir</button>
+                    <button onclick="editClient(${client.id})">Editar</button>
+                    <button onclick="deleteClient(${client.id})">Excluir</button>
                 </td>
-            </tr>
-        `).join('');
-
-        populateClientSelect(); // Atualiza o select de clientes
-    }
-
-    function populateClientSelect() {
-        const clients = JSON.parse(localStorage.getItem('clients')) || [];
-        clientSelect.innerHTML = '<option value="">Selecione um cliente</option>'; // Adiciona uma opção padrão
-        clients.forEach(client => {
-            const option = document.createElement('option');
-            option.value = client.name; // Use o nome do cliente como valor
-            option.textContent = client.name;
-            clientSelect.appendChild(option);
+            `;
+            clientTableBody.appendChild(row);
         });
-    }
+    };
 
-    expenseForm.addEventListener('submit', event => {
+    const addExpense = (expense) => {
+        expenses.push(expense);
+        updateExpenseTable();
+    };
+
+    const addService = (service) => {
+        services.push(service);
+        updateServiceTable();
+    };
+
+    const addClient = (client) => {
+        clients.push(client);
+        updateClientTable();
+        // Atualizar o seletor de cliente no formulário de serviço
+        clientSelect.innerHTML = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    };
+
+    window.editExpense = (id) => {
+        const expense = expenses.find(e => e.id === id);
+        if (expense) {
+            document.getElementById('expenseId').value = expense.id;
+            document.getElementById('expenseDate').value = expense.date;
+            document.getElementById('expenseType').value = expense.type;
+            document.getElementById('expenseAmount').value = expense.amount;
+            document.getElementById('expenseDescription').value = expense.description;
+            document.getElementById('expensePayment').value = expense.payment;
+        }
+    };
+
+    window.deleteExpense = (id) => {
+        expenses = expenses.filter(e => e.id !== id);
+        updateExpenseTable();
+    };
+
+    window.editService = (id) => {
+        const service = services.find(s => s.id === id);
+        if (service) {
+            document.getElementById('serviceId').value = service.id;
+            document.getElementById('serviceDate').value = service.date;
+            document.getElementById('vehicle').value = service.vehicle;
+            document.getElementById('licensePlate').value = service.licensePlate;
+            document.getElementById('client').value = service.client;
+            document.getElementById('servicePayment').value = service.payment;
+            document.getElementById('serviceAmount').value = service.amount;
+            document.getElementById('serviceDescription').value = service.description;
+        }
+    };
+
+    window.deleteService = (id) => {
+        services = services.filter(s => s.id !== id);
+        updateServiceTable();
+    };
+
+    window.editClient = (id) => {
+        const client = clients.find(c => c.id === id);
+        if (client) {
+            document.getElementById('clientId').value = client.id;
+            document.getElementById('clientName').value = client.name;
+        }
+    };
+
+    window.deleteClient = (id) => {
+        clients = clients.filter(c => c.id !== id);
+        updateClientTable();
+        // Atualizar o seletor de cliente no formulário de serviço
+        clientSelect.innerHTML = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    };
+
+    expenseForm.addEventListener('submit', (event) => {
         event.preventDefault();
+        const id = document.getElementById('expenseId').value;
         const expense = {
+            id: id ? parseInt(id) : Date.now(),
             date: event.target.expenseDate.value,
             type: event.target.expenseType.value,
             amount: event.target.expenseAmount.value,
             description: event.target.expenseDescription.value,
             payment: event.target.expensePayment.value
         };
-        const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        expenses.push(expense);
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        loadExpenses();
+        if (id) {
+            expenses = expenses.map(e => e.id === expense.id ? expense : e);
+        } else {
+            addExpense(expense);
+        }
+        expenseForm.reset();
+        updateExpenseTable();
     });
 
-    serviceForm.addEventListener('submit', event => {
+    serviceForm.addEventListener('submit', (event) => {
         event.preventDefault();
+        const id = document.getElementById('serviceId').value;
         const service = {
+            id: id ? parseInt(id) : Date.now(),
             date: event.target.serviceDate.value,
             vehicle: event.target.vehicle.value,
             licensePlate: event.target.licensePlate.value,
@@ -251,107 +217,34 @@ document.addEventListener('DOMContentLoaded', () => {
             amount: event.target.serviceAmount.value,
             description: event.target.serviceDescription.value
         };
-        const services = JSON.parse(localStorage.getItem('services')) || [];
-        services.push(service);
-        localStorage.setItem('services', JSON.stringify(services));
-        loadServices();
+        if (id) {
+            services = services.map(s => s.id === service.id ? service : s);
+        } else {
+            addService(service);
+        }
+        serviceForm.reset();
+        updateServiceTable();
     });
 
-    clientForm.addEventListener('submit', event => {
+    clientForm.addEventListener('submit', (event) => {
         event.preventDefault();
+        const id = document.getElementById('clientId').value;
         const client = {
+            id: id ? parseInt(id) : Date.now(),
             name: event.target.clientName.value
         };
-        const clients = JSON.parse(localStorage.getItem('clients')) || [];
-        clients.push(client);
-        localStorage.setItem('clients', JSON.stringify(clients));
-        loadClients();
-    });
-
-    document.getElementById('expenses-tab').addEventListener('click', () => {
-        showTab('expenses');
-    });
-
-    document.getElementById('services-tab').addEventListener('click', () => {
-        showTab('services');
-    });
-
-    document.getElementById('clients-tab').addEventListener('click', () => {
-        showTab('clients');
-    });
-
-    document.getElementById('dashboard-tab').addEventListener('click', () => {
-        showTab('dashboard');
-    });
-
-    function showTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById(`${tab}-section`).classList.add('active');
-        if (tab === 'dashboard') {
-            updateChart();
+        if (id) {
+            clients = clients.map(c => c.id === client.id ? client : c);
+        } else {
+            addClient(client);
         }
-    }
-
-    expenseTableBody.addEventListener('click', event => {
-        if (event.target.classList.contains('edit-expense')) {
-            const index = event.target.dataset.index;
-            const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-            const expense = expenses[index];
-            // Preencha o formulário de edição com os dados
-            // Aqui você pode implementar a lógica para editar despesas
-            // Por exemplo, abrir um modal com o formulário de edição
-            // e preencher os campos com os dados da despesa selecionada
-        }
-        if (event.target.classList.contains('delete-expense')) {
-            const index = event.target.dataset.index;
-            let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-            expenses.splice(index, 1);
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            loadExpenses();
-        }
+        clientForm.reset();
     });
 
-    serviceTableBody.addEventListener('click', event => {
-        if (event.target.classList.contains('edit-service')) {
-            const index = event.target.dataset.index;
-            const services = JSON.parse(localStorage.getItem('services')) || [];
-            const service = services[index];
-            // Preencha o formulário de edição com os dados
-            // Aqui você pode implementar a lógica para editar serviços
-            // Por exemplo, abrir um modal com o formulário de edição
-            // e preencher os campos com os dados do serviço selecionado
-        }
-        if (event.target.classList.contains('delete-service')) {
-            const index = event.target.dataset.index;
-            let services = JSON.parse(localStorage.getItem('services')) || [];
-            services.splice(index, 1);
-            localStorage.setItem('services', JSON.stringify(services));
-            loadServices();
-        }
-    });
+    expensesTab.addEventListener('click', () => switchTab('expenses-section'));
+    servicesTab.addEventListener('click', () => switchTab('services-section'));
+    clientsTab.addEventListener('click', () => switchTab('clients-section'));
+    dashboardTab.addEventListener('click', () => switchTab('dashboard-section'));
 
-    clientTableBody.addEventListener('click', event => {
-        if (event.target.classList.contains('edit-client')) {
-            const index = event.target.dataset.index;
-            const clients = JSON.parse(localStorage.getItem('clients')) || [];
-            const client = clients[index];
-            // Preencha o formulário de edição com os dados
-            // Aqui você pode implementar a lógica para editar clientes
-            // Por exemplo, abrir um modal com o formulário de edição
-            // e preencher os campos com os dados do cliente selecionado
-        }
-        if (event.target.classList.contains('delete-client')) {
-            const index = event.target.dataset.index;
-            let clients = JSON.parse(localStorage.getItem('clients')) || [];
-            clients.splice(index, 1);
-            localStorage.setItem('clients', JSON.stringify(clients));
-            loadClients();
-        }
-    });
-
-    loadExpenses();
-    loadServices();
-    loadClients();
+    // Preencher filtros e tabelas com dados exemplo, se necessário
 });
