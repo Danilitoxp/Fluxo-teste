@@ -49,17 +49,10 @@
             </form>
 
             <h2>Lista de Despesas</h2>
-            <div id="expenseFilters">
-                <select id="filterExpenseDate">
-                    <option value="">Filtrar por data</option>
-                </select>
-                <select id="filterExpenseType">
-                    <option value="">Filtrar por tipo de despesa</option>
-                </select>
-                <select id="filterExpensePayment">
-                    <option value="">Filtrar por forma de pagamento</option>
-                </select>
+            <div class="filtro-data">
+                <input type="date" id="filterExpenseDate">
             </div>
+            
             <table id="expenseTable">
                 <thead>
                     <tr>
@@ -110,15 +103,16 @@
             </form>
 
             <h2>Lista de Serviços</h2>
-            <div id="serviceFilters">
-                <select id="filterVehicle">
-                    <option value="">Filtrar por veículo</option>
-                </select>
-                <select id="filterLicensePlate">
-                    <option value="">Filtrar por placa</option>
-                </select>
+            <div class="buscaplaca-filter">
+                <input type="text" id="filterLicensePlate" placeholder="Buscar por placa">
+            </div>
+            <div class="buscaveiculo-filter">
+                <input type="text" id="filterVehicle" placeholder="Buscar por veículo">
+            </div>
+            <div class="buscacliente-filter">
                 <select id="filterClient">
-                    <option value="">Filtrar por cliente</option>
+                    <option value="">Todos</option>
+                    <!-- Options será preenchido dinamicamente -->
                 </select>
             </div>
             <table id="serviceTable">

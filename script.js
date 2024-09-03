@@ -11,15 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const clientTableBody = document.querySelector('#clientTable tbody');
     const clientSelect = document.getElementById('client');
     const expenseFilters = {
-        date: document.getElementById('filterExpenseDate'),
-        type: document.getElementById('filterExpenseType'),
-        payment: document.getElementById('filterExpensePayment')
+        date: document.getElementById('filterExpenseDate')
     };
+
     const serviceFilters = {
         vehicle: document.getElementById('filterVehicle'),
         licensePlate: document.getElementById('filterLicensePlate'),
         client: document.getElementById('filterClient')
     };
+
+    
     const dashboardSection = document.getElementById('dashboard-section');
     const dailyChartCanvas = document.getElementById('dailyChart');
     const weeklyChartCanvas = document.getElementById('weeklyChart');
@@ -61,9 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const updateExpenseTable = () => {
+    // Função para filtrar despesas
+    const filterExpenses = () => {
+        const filterDate = expenseFilters.date.value;
+        let filteredExpenses = expenses;
+
+        if (filterDate) {
+            filteredExpenses = expenses.filter(expense => expense.date === filterDate);
+        }
+
+        updateExpenseTable(filteredExpenses);
+    };
+
+     // Adiciona um listener de evento para o filtro de data
+    expenseFilters.date.addEventListener('change', filterExpenses);
+
+    // Atualiza a função updateExpenseTable para aceitar uma lista de despesas filtradas
+    const updateExpenseTable = (filteredExpenses = expenses) => {
         expenseTableBody.innerHTML = '';
-        expenses.forEach(expense => {
+        filteredExpenses.forEach(expense => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${expense.date}</td>
@@ -80,9 +97,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const updateServiceTable = () => {
+    // Função para filtrar serviços
+    const filterServices = () => {
+        const filterVehicle = serviceFilters.vehicle.value.toLowerCase();
+        const filterLicensePlate = serviceFilters.licensePlate.value.toLowerCase();
+        const filterClient = serviceFilters.client.value;
+
+        let filteredServices = services;
+
+        if (filterVehicle) {
+            filteredServices = filteredServices.filter(service => service.vehicle.toLowerCase().includes(filterVehicle));
+        }
+
+        if (filterLicensePlate) {
+            filteredServices = filteredServices.filter(service => service.licensePlate.toLowerCase().includes(filterLicensePlate));
+        }
+
+        if (filterClient) {
+            filteredServices = filteredServices.filter(service => service.client === filterClient);
+        }
+
+        updateServiceTable(filteredServices);
+    };
+
+     // Adiciona listeners de evento para os filtros de serviços
+     serviceFilters.vehicle.addEventListener('input', filterServices);
+     serviceFilters.licensePlate.addEventListener('input', filterServices);
+     serviceFilters.client.addEventListener('change', filterServices);
+
+    // Atualiza a função updateServiceTable para aceitar uma lista de serviços filtrados
+    const updateServiceTable = (filteredServices = services) => {
         serviceTableBody.innerHTML = '';
-        services.forEach(service => {
+        filteredServices.forEach(service => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${service.date}</td>
