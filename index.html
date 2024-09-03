@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Financeira</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="./script.js" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="#" id="expenses-tab">Despesas</a></li>
+            <li><a href="#" id="services-tab">Serviços</a></li>
+            <li><a href="#" id="clients-tab">Clientes</a></li>
+            <li><a href="#" id="dashboard-tab">Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <!-- Aba de Despesas -->
+        <div id="expenses-section" class="tab-content active">
+            <h1>Cadastro de Despesas</h1>
+            <form id="expenseForm">
+                <input type="hidden" id="expenseId">
+                <label for="expenseDate">Dia:</label>
+                <input type="date" id="expenseDate" name="expenseDate" required>
+                
+                <label for="expenseType">Despesa:</label>
+                <input type="text" id="expenseType" name="expenseType" required>
+                
+                <label for="expenseAmount">Valor:</label>
+                <input type="number" id="expenseAmount" name="expenseAmount" required>
+                
+                <label for="expenseDescription">Descrição:</label>
+                <textarea id="expenseDescription" name="expenseDescription" required></textarea>
+                
+                <label for="expensePayment">Forma de Pagamento:</label>
+                <select id="expensePayment" name="expensePayment" required>
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="cartao-credito">Cartão de Crédito</option>
+                    <option value="cartao-debito">Cartão de Débito</option>
+                    <option value="pix">Pix</option>
+                    <option value="boleto">Boleto</option>
+                </select>
+                
+                <button type="submit">Cadastrar Despesa</button>
+            </form>
+
+            <h2>Lista de Despesas</h2>
+            <div id="expenseFilters">
+                <select id="filterExpenseDate">
+                    <option value="">Filtrar por data</option>
+                </select>
+                <select id="filterExpenseType">
+                    <option value="">Filtrar por tipo de despesa</option>
+                </select>
+                <select id="filterExpensePayment">
+                    <option value="">Filtrar por forma de pagamento</option>
+                </select>
+            </div>
+            <table id="expenseTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Despesa</th>
+                        <th>Valor</th>
+                        <th>Descrição</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- As despesas serão inseridas aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Aba de Serviços -->
+        <div id="services-section" class="tab-content">
+            <h1>Cadastro de Serviços</h1>
+            <form id="serviceForm">
+                <input type="hidden" id="serviceId">
+                <label for="serviceDate">Data:</label>
+                <input type="date" id="serviceDate" name="serviceDate" required>
+                
+                <label for="vehicle">Veículo:</label>
+                <input type="text" id="vehicle" name="vehicle" required>
+                
+                <label for="licensePlate">Placa:</label>
+                <input type="text" id="licensePlate" name="licensePlate" required>
+                
+                <label for="client">Cliente:</label>
+                <select id="client" name="client" required>
+                    <!-- Clientes serão carregados dinamicamente -->
+                </select>
+                
+                <label for="servicePayment">Forma de Pagamento:</label>
+                <select id="servicePayment" name="servicePayment" required>
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="cartao-credito">Cartão de Crédito</option>
+                    <option value="cartao-debito">Cartão de Débito</option>
+                    <option value="pix">Pix</option>
+                    <option value="boleto">Boleto</option>
+                </select>
+                
+                <label for="serviceAmount">Valor:</label>
+                <input type="number" id="serviceAmount" name="serviceAmount" required>
+                
+                <label for="serviceDescription">Descrição:</label>
+                <textarea id="serviceDescription" name="serviceDescription" required></textarea>
+                
+                <button type="submit">Adicionar Serviço</button>
+            </form>
+
+            <h2>Lista de Serviços</h2>
+            <div id="serviceFilters">
+                <select id="filterVehicle">
+                    <option value="">Filtrar por veículo</option>
+                </select>
+                <select id="filterLicensePlate">
+                    <option value="">Filtrar por placa</option>
+                </select>
+                <select id="filterClient">
+                    <option value="">Filtrar por cliente</option>
+                </select>
+            </div>
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Veículo</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Valor</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os serviços serão inseridos aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Aba de Clientes -->
+        <div id="clients-section" class="tab-content">
+            <h1>Cadastro de Clientes</h1>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <label for="clientName">Nome:</label>
+                <input type="text" id="clientName" name="clientName" required>
+                
+                <button type="submit">Adicionar Cliente</button>
+            </form>
+
+            <h2>Lista de Clientes</h2>
+            <table id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os clientes serão inseridos aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Aba de Dashboard -->
+        <div id="dashboard-section" class="tab-content">
+            <h1>Dashboard</h1>
+            <div class="chart-container">
+                <h2>Despesas do Dia</h2>
+                <canvas id="dailyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Despesas da Semana</h2>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Despesas do Mês</h2>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
